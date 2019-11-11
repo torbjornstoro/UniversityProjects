@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
 import scipy
 import numpy as np
+from matplotlib import rc
+rc('font', **{'family': 'serif', 'serif': ['Computer Modern']})
+rc('text', usetex=True)
 
 l=1559.05 #micrometers
 v=13/60 #microliters per second
@@ -14,7 +17,7 @@ T=293
 visc=1.002*10**(-3)
 pi=3.14
 print(t)
-plt.style.use("ggplot")
+plt.style.use("default")
 
 def func(z,a,b,c):
    return a*scipy.special.erf(z/(10**6*b)) + c
@@ -44,9 +47,15 @@ x1Values = [-(i-firstXlist[-1]/2) for i in firstXlist]
 x2Values = [-(i-secondXlist[-1]/2) for i in secondXlist]
 
 # scale for consentration, since intensity increases as conserntration decreases
+
+ymax1=firstYlist[0]
+ymin1=firstYlist[-1]
+ymax2=secondYlist[0]
+ymin2=secondYlist[-1]
+
 #Normalize, intensity for c0 is 105.67, intenisty for c=0 is 145.9
-c1 = [((np.log10(145.90)-np.log10(i))/(np.log10(145.90)-np.log10(105.67))) for i in firstYlist]
-c2 = [((np.log10(145.90)-np.log10(i))/(np.log10(145.90)-np.log10(105.67))) for i in secondYlist]
+c1 = [((np.log10(ymax1)-np.log10(i))/(np.log10(ymax1)-np.log10(ymin1))) for i in firstYlist]
+c2 = [((np.log10(ymax2)-np.log10(i))/(np.log10(ymax2)-np.log10(ymin2))) for i in secondYlist]
 
 params, extras = curve_fit(func, x1Values, c1,p0=[0.5,10**-5,0.5])
 params2, extras2 = curve_fit(func, x2Values, c2,p0=[0.5,10**-5,0.5])
@@ -54,18 +63,28 @@ params2, extras2 = curve_fit(func, x2Values, c2,p0=[0.5,10**-5,0.5])
 plt.figure()
 plt.plot(x1Values,c1, "k-", alpha=0.5)
 plt.plot(x1Values,func(x1Values, *params), "r-", alpha=0.5)
-plt.xlabel("Position [μm]")
-plt.ylabel("Normed concentration")
+plt.xlabel("Position [μm]",fontsize=14)
+plt.ylabel("Normed concentration",fontsize=14)
+plt.tick_params(axis="both", which="both", labelsize=14)
+plt.ylim, plt.xlim = (0, 1), (-200, 200)
+plt.gca().spines["top"].set_visible(False)
+plt.gca().spines["right"].set_visible(False)
 print(params)
 print(params2)
-plt.savefig("Concentration_distribution_and_fitted_error_funnction_first_measurement.jpeg")
+plt.savefig("Concentration_distribution_and_fitted_error_funnction_first_measurement.jpeg", 
+            bbox_inches="tight", pad_inches=0.1)
 
 plt.figure()
 plt.plot(x2Values,c2, "k-", alpha=0.5)
 plt.plot(x2Values,func(x2Values, *params2), "r-", alpha=0.5)
-plt.xlabel("Position [μm]")
-plt.ylabel("Normed concentration")
-plt.savefig("Concentration_distribution_and_fitted_error_funnction_second_measurement.jpeg")
+plt.xlabel("Position [μm]",fontsize=14)
+plt.ylabel("Normed concentration",fontsize=14)
+plt.ylim, plt.xlim = (0, 1), (-200, 200)
+plt.tick_params(axis="both", which="both", labelsize=14)
+plt.gca().spines["top"].set_visible(False)
+plt.gca().spines["right"].set_visible(False)
+plt.savefig("Concentration_distribution_and_fitted_error_funnction_second_measurement.jpeg", 
+            bbox_inches="tight", pad_inches=0.1)
 def diffusionConstant(d1,d2,dt):
     return(d2**2-d1**2)/(4*dt)
     
